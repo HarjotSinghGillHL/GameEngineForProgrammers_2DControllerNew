@@ -60,16 +60,17 @@ public class HL_GameManager : MonoBehaviour
         {
             case EOverlays.OVERLAY_MENU:
                 {
-
+                    Cursor.visible = true;
                     break;
                 }
                 case EOverlays.OVERLAY_PAUSED:
                 {
-              
+                    Cursor.visible = true;
                     break;
                 }
                 case EOverlays.OVERLAY_INGAMEUI:
                 {
+                    Cursor.visible = false;
                     break;
                 }
             default:
