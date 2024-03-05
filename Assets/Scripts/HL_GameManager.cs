@@ -3,26 +3,32 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-enum EOverlays
-{
-    OVERLAY_MENU = 0,
-    OVERLAY_PAUSED,
-    OVERLAY_INGAMEUI,
-    OVERLAY_MAX,
-}
+
 public class HL_GameManager : MonoBehaviour
 {
     // Start is called before the first frame update
-    EOverlays CurrentOverlay = EOverlays.OVERLAY_MENU;
+    public enum EOverlays
+    {
+        OVERLAY_MENU = 0,
+        OVERLAY_PAUSED,
+        OVERLAY_INGAMEUI,
+        OVERLAY_MAX,
+    }
+
+    public EOverlays CurrentOverlay = EOverlays.OVERLAY_MENU;
 
     public GameObject MainMenu;
     public GameObject PauseScreen;
     public GameObject InGameOverlay;
+    public GameObject LocalPlayer;
+
+    private HL_PlayerController LocalPlayerController;
 
     bool bPaused = false;
     void Start()
     {
-
+        LocalPlayerController = LocalPlayer.GetComponent<HL_PlayerController>();
+        LocalPlayerController.SetLocalPlayerState(false);
     }
 
     void UpdateOverlay(EOverlays Overlay)
@@ -31,6 +37,24 @@ public class HL_GameManager : MonoBehaviour
         MainMenu.SetActive(Overlay == EOverlays.OVERLAY_MENU);
         PauseScreen.SetActive(Overlay == EOverlays.OVERLAY_PAUSED);
         InGameOverlay.SetActive(Overlay == EOverlays.OVERLAY_INGAMEUI);
+
+        GameObject Character = GameObject.Find("Character");
+
+
+        if (Overlay == EOverlays.OVERLAY_INGAMEUI)
+        {
+            LocalPlayerController.SetLocalPlayerState(true);
+        }
+        else if (Overlay == EOverlays.OVERLAY_PAUSED)
+        {
+            LocalPlayerController.SetLocalPlayerState(true);
+            LocalPlayerController.bPlayerControllerActive = false;
+        }
+        else
+        {
+            LocalPlayerController.SetLocalPlayerState(false);
+        }
+
     }
     public void OnMenuLoad()
     {
@@ -40,10 +64,7 @@ public class HL_GameManager : MonoBehaviour
     {
         UpdateOverlay(EOverlays.OVERLAY_INGAMEUI);
     }
-    public void LoadSceneEx(string SceneName)
-    {
-        SceneManager.LoadScene(SceneName);   
-    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))

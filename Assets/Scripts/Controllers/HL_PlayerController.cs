@@ -6,6 +6,7 @@ public class HL_PlayerController : MonoBehaviour
 {
     private Rigidbody2D rigidBody;
     private Animator animator;
+    private SpriteRenderer LocalPlayerSprite;
 
     [SerializeField]
     private int moveSpeed = 250;
@@ -13,23 +14,34 @@ public class HL_PlayerController : MonoBehaviour
     private Vector2 vecVelocity = Vector2.zero;
     private Vector2 vecKeyboardMovement = Vector2.zero;
     private Vector2 vecLastKeyboardMovement = Vector2.zero;
+
+    public bool bPlayerControllerActive = false;
     void Start()
     {
         rigidBody = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        LocalPlayerSprite = GetComponent<SpriteRenderer>();
+        bPlayerControllerActive = true;
     }
+
 
     void PreMovementUpdate()
     {
         vecKeyboardMovement.x = Input.GetAxisRaw("Horizontal");
         vecKeyboardMovement.y = Input.GetAxisRaw("Vertical");
     }
+
+    public void SetLocalPlayerState(bool bActive)
+    {
+        bPlayerControllerActive = bActive;
+        LocalPlayerSprite.enabled = bActive;
+    }
     void MovePlayer()
     {
         vecVelocity.x = (vecKeyboardMovement.x * Time.deltaTime);
         vecVelocity.y = (vecKeyboardMovement.y * Time.deltaTime);
 
-        if (vecKeyboardMovement != Vector2.zero)
+        if (bPlayerControllerActive && vecKeyboardMovement != Vector2.zero)
         {
             animator.Play("Tree", 0);
             animator.SetFloat("X", vecVelocity.x);
