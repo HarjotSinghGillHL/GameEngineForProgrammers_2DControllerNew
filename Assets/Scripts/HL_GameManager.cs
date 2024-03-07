@@ -12,14 +12,19 @@ public class HL_GameManager : MonoBehaviour
         OVERLAY_MENU = 0,
         OVERLAY_PAUSED,
         OVERLAY_INGAMEUI,
+        OVERLAY_GAMEOVER,
+        OVERLAY_OPTIONS,
         OVERLAY_MAX,
     }
 
     public EOverlays CurrentOverlay = EOverlays.OVERLAY_MENU;
+    private EOverlays PreviousOverlay = EOverlays.OVERLAY_MENU;
 
     public GameObject MainMenu;
     public GameObject PauseScreen;
     public GameObject InGameOverlay;
+    public GameObject GameOverOverlay;
+    public GameObject OptionsOverlay;
     public GameObject LocalPlayer;
 
     private HL_PlayerController LocalPlayerController;
@@ -29,17 +34,21 @@ public class HL_GameManager : MonoBehaviour
     {
         LocalPlayerController = LocalPlayer.GetComponent<HL_PlayerController>();
         LocalPlayerController.SetLocalPlayerState(false);
+        LocalPlayer.SetActive(false);
     }
 
     void UpdateOverlay(EOverlays Overlay)
     {
+ 
+        PreviousOverlay = CurrentOverlay;
         CurrentOverlay = Overlay;
         MainMenu.SetActive(Overlay == EOverlays.OVERLAY_MENU);
         PauseScreen.SetActive(Overlay == EOverlays.OVERLAY_PAUSED);
         InGameOverlay.SetActive(Overlay == EOverlays.OVERLAY_INGAMEUI);
-
-        GameObject Character = GameObject.Find("Character");
-
+        GameOverOverlay.SetActive(Overlay == EOverlays.OVERLAY_GAMEOVER);
+        OptionsOverlay.SetActive(Overlay == EOverlays.OVERLAY_OPTIONS);
+        LocalPlayer.SetActive(Overlay == EOverlays.OVERLAY_INGAMEUI || Overlay == EOverlays.OVERLAY_PAUSED
+             || (PreviousOverlay == EOverlays.OVERLAY_PAUSED && Overlay == EOverlays.OVERLAY_OPTIONS));
 
         if (Overlay == EOverlays.OVERLAY_INGAMEUI)
         {
@@ -50,15 +59,29 @@ public class HL_GameManager : MonoBehaviour
             LocalPlayerController.SetLocalPlayerState(true);
             LocalPlayerController.bPlayerControllerActive = false;
         }
-        else
+        else if (Overlay == EOverlays.OVERLAY_PAUSED)
         {
             LocalPlayerController.SetLocalPlayerState(false);
         }
 
     }
+
+    public void OpenOptionsScreen()
+    {
+        UpdateOverlay(EOverlays.OVERLAY_OPTIONS);
+    }
+    public void SetOverlayToPrevious()
+    {
+        UpdateOverlay(PreviousOverlay);
+    }
     public void OnMenuLoad()
     {
         UpdateOverlay(EOverlays.OVERLAY_MENU);
+    }
+    public void OnGameOver()
+    {
+        SceneManager.LoadScene("EmptyScene");
+        UpdateOverlay(EOverlays.OVERLAY_GAMEOVER);
     }
     public void OnLevelLoad()
     {
@@ -67,31 +90,36 @@ public class HL_GameManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            bPaused = !bPaused;
+        if (bPaused || CurrentOverlay == EOverlays.OVERLAY_INGAMEUI)
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                bPaused = !bPaused;
 
-            if (bPaused)
-                UpdateOverlay(EOverlays.OVERLAY_PAUSED);
-            else
-                UpdateOverlay(EOverlays.OVERLAY_INGAMEUI);
-        }
+                if (bPaused)
+                    UpdateOverlay(EOverlays.OVERLAY_PAUSED);
+                else
+                    UpdateOverlay(EOverlays.OVERLAY_INGAMEUI);
+            }
 
         switch (CurrentOverlay)
         {
-            case EOverlays.OVERLAY_MENU:
-                {
-                    Cursor.visible = true;
-                    break;
-                }
-                case EOverlays.OVERLAY_PAUSED:
-                {
-                    Cursor.visible = true;
-                    break;
-                }
-                case EOverlays.OVERLAY_INGAMEUI:
+            case EOverlays.OVERLAY_INGAMEUI:
                 {
                     Cursor.visible = false;
+                    break;
+                }
+            case EOverlays.OVERLAY_MENU:
+
+                {
+                    Cursor.visible = true;
+                    LocalPlayer.SetActive(false);
+                    break;
+                }
+            case EOverlays.OVERLAY_PAUSED:
+            case EOverlays.OVERLAY_GAMEOVER:
+            case EOverlays.OVERLAY_OPTIONS:
+                {
+                    Cursor.visible = true;
                     break;
                 }
             default:

@@ -18,18 +18,18 @@ public class HL_LevelManager : MonoBehaviour
 
         if (SpawnPoint != null)
             LocalPlayer.transform.position = SpawnPoint.transform.position;
-        
+
     }
     public void LoadSceneEx(string SceneName)
     {
         if (SceneName.Contains("Gameplay_"))
             SceneManager.sceneLoaded += OnGameplayLevelLoad;
-       
+
         SceneManager.LoadScene(SceneName);
 
     }
     void Update()
     {
-        
+
     }
 }
