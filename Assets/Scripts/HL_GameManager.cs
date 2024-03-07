@@ -88,6 +88,10 @@ public class HL_GameManager : MonoBehaviour
         UpdateOverlay(EOverlays.OVERLAY_INGAMEUI);
     }
 
+    public void ExitGame()
+    {
+        Application.Quit();
+    }
     void Update()
     {
         if (bPaused || CurrentOverlay == EOverlays.OVERLAY_INGAMEUI)
